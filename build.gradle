@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id "com.google.protobuf" version "0.9.4"
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+def reactiveGrpcVersion = '1.0.0'
+def grpcVersion = '1.40.0'
+def protobufVersion = '3.4.0'
+
+repositories {
+    mavenCentral()
+}
+
+protobuf {
+    protoc {
+        // The artifact spec for the Protobuf Compiler
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+        reactor {
+            artifact = "com.salesforce.servicelibs:reactor-grpc:${reactiveGrpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        ofSourceSet("main")*.plugins {
+            grpc {}
+            reactor {}
+        }
+    }
+}
+
+dependencies {
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation("io.grpc:grpc-stub:${grpcVersion}")
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation("com.salesforce.servicelibs:reactor-grpc-stub:${reactiveGrpcVersion}")
+    implementation('io.projectreactor:reactor-core:3.3.4.RELEASE')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
